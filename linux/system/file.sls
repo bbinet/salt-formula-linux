@@ -4,6 +4,10 @@
 {%- for file_name, file in system.file.items() %}
 
 linux_file_{{ file_name }}:
+{%- if file.symlink is defined %}
+  file.symlink:
+    - target: {{ file.symlink }}
+{%- else %}
 {%- if file.serialize is defined %}
   file.serialize:
     - formatter: {{ file.serialize }}
@@ -39,23 +43,24 @@ linux_file_{{ file_name }}:
     {%- endif %}
 
 {%- endif %}
+    - replace: {{ file.get('replace', 'True') }}
+    {%- if file.dir_mode is defined %}
+    - dir_mode: {{ file.dir_mode }}
+    {%- endif %}
+    {%- if file.encoding is defined %}
+    - encoding: {{ file.encoding }}
+    {%- endif %}
+{%- endif %}
     {%- if file.name is defined %}
     - name: {{ file.name }}
     {%- else %}
     - name: {{ file_name }}
     {%- endif %}
     - makedirs: {{ file.get('makedirs', 'True') }}
-    - replace: {{ file.get('replace', 'True') }}
     - user: {{ file.get('user', 'root') }}
     - group: {{ file.get('group', 'root') }}
     {%- if file.mode is defined %}
     - mode: {{ file.mode }}
-    {%- endif %}
-    {%- if file.dir_mode is defined %}
-    - dir_mode: {{ file.dir_mode }}
-    {%- endif %}
-    {%- if file.encoding is defined %}
-    - encoding: {{ file.encoding }}
     {%- endif %}
  
 {%- endfor %}
